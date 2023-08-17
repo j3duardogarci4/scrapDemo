@@ -24,14 +24,13 @@ export default class File {
           try {
             await fs.access(fileImagePath);
             return fileImagePath;
-          } catch {
+           } catch {
             console.log("Unable to open image selected...")
             return null;
           }      
     } else {
            return null;   
    }
-
     
   static async isImageAvailable(fileImagename: string = ''): Promise<boolean> {
     if (fileImagename) {
@@ -41,8 +40,7 @@ export default class File {
     }    
     return result
    }
-
- 
+    
   static async getAvailableImageNames(): Promise<string[]> {
     try {
       result = (await fs.readdir(File.imagesFullPathAccess)).map(
@@ -66,7 +64,6 @@ export default class File {
            } catch {
             result = false;
            }
-
     } else{
       return false;
     }   
