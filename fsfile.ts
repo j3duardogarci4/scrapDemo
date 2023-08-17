@@ -2,7 +2,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import processImage from './image-processing'; // to process size of image
 
-// query parameters
+
 interface QueryImageParameters {
   filename?: string;
   width?: string;
@@ -10,73 +10,68 @@ interface QueryImageParameters {
 }
 
 export default class File {
-  // Default paths
+
   static imagesFullPathAccess = path.resolve(__dirname, '../assets/images');
   static imagesThumbPathccess = path.resolve(__dirname, '../assets/images_thumb');
 
- 
   static async getImagePath(params: QueryImageParameters): Promise<null | string> {
  
-    if (!params.filename) {
-      return null;
-    }
-
-    // to create the access url
-    const fileImagePath: string =
-      params.width && params.height
-        ? path.resolve(
-            File.imagesThumbPath,
-            `${params.filename}-${params.width}x${params.height}.jpg`
-          )
-        : path.resolve(File.imagesFullPathAccess, `${params.filename}.jpg`);
+    if (params.filename) {
+           const fileImagePath: string = params.width && params.height ? path.resolve(
+                                                                                      File.imagesThumbPath,
+                                                                                      `${params.filename}-${params.width}x${params.height}.jpg`
+                                                                                      )
+              : path.resolve(File.imagesFullPathAccess, `${params.filename}.jpg`);    
+          try {
+            await fs.access(fileImagePath);
+            return fileImagePath;
+          } catch {
+            console.log("Unable to open image selected...")
+            return null;
+          }      
+    } else {
+           return null;   
+   }
 
     
-    try {
-      await fs.access(fileImagePath);
-      return fileImagePath;
-    } catch {
-       console.log("Unable to open image selected...")
-      return null;
-    }
-  }
-
-  
   static async isImageAvailable(fileImagename: string = ''): Promise<boolean> {
-    if (!fileImagename) {
-      return false; 
-    }
-
-    return (await File.getAvailableImageNames()).includes(fileImagename);
-  }
+    if (fileImagename) {
+      result = (await File.getAvailableImageNames()).includes(fileImagename); 
+    } else {
+      result = false; 
+    }    
+    return result
+   }
 
  
   static async getAvailableImageNames(): Promise<string[]> {
     try {
-      return (await fs.readdir(File.imagesFullPathAccess)).map(
-        (filename: string): string => filename.split('.')[0]
-      ); // Cut extension
+      result = (await fs.readdir(File.imagesFullPathAccess)).map(
+                           (filename: string): string => filename.split('.')[0]
+                          ); // Cut extension
     } catch {
-      return [];
+      result = [];
     }
+    return result;
   }
 
   static async isThumbAvailable(params: ImageQuery): Promise<boolean> {
-    if (!params.filename || !params.width || !params.height) {
-      return false; 
-    }
+    if (params.filename || params.width || params.height) {
+       const filePath: string = path.resolve(
+                                         File.imagesThumbPath,
+                                         `${params.filename}-${params.width}x${params.height}.jpg`
+                                        );
+       try {
+            await fs.access(filePath);    
+            result = true;
+           } catch {
+            result = false;
+           }
 
-
-    const filePath: string = path.resolve(
-      File.imagesThumbPath,
-      `${params.filename}-${params.width}x${params.height}.jpg`
-    );
-
-    try {
-      await fs.access(filePath);    
-      return true;
-    } catch {
+    } else{
       return false;
-    }
+    }   
+    return result;
   }
 
   static async createThumbPath(): Promise<void> {
