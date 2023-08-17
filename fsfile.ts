@@ -15,13 +15,12 @@ export default class File {
   static imagesThumbPathccess = path.resolve(__dirname, '../assets/images_thumb');
 
   static async getImagePath(params: QueryImageParameters): Promise<null | string> {
- 
-    if (params.filename) {
-           const fileImagePath: string = params.width && params.height ? path.resolve(
-                                                                                      File.imagesThumbPath,
-                                                                                      `${params.filename}-${params.width}x${params.height}.jpg`
-                                                                                      )
-              : path.resolve(File.imagesFullPathAccess, `${params.filename}.jpg`);    
+      if (params.filename) {
+             resolutionOfPath = path.resolve(File.imagesThumbPath,
+                                             `${params.filename}-${params.width}x${params.height}.jpg`
+                                             )
+             const fileImagePath: string = params.width && params.height ? resolutionOfPath: path.resolve(File.imagesFullPathAccess, `${params.filename}.jpg`);    
+        
           try {
             await fs.access(fileImagePath);
             return fileImagePath;
